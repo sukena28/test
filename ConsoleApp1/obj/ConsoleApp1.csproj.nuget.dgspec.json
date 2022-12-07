@@ -1,20 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\suken\\Desktop\\ConsoleApp1\\ConsoleApp1\\ConsoleApp1.csproj": {}
+    "D:\\_Capella\\_ECA\\Test\\test\\ConsoleApp1\\ConsoleApp1.csproj": {}
   },
   "projects": {
-    "C:\\Users\\suken\\Desktop\\ConsoleApp1\\ConsoleApp1\\ConsoleApp1.csproj": {
+    "D:\\_Capella\\_ECA\\Test\\test\\ConsoleApp1\\ConsoleApp1.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\suken\\Desktop\\ConsoleApp1\\ConsoleApp1\\ConsoleApp1.csproj",
+        "projectUniqueName": "D:\\_Capella\\_ECA\\Test\\test\\ConsoleApp1\\ConsoleApp1.csproj",
         "projectName": "ConsoleApp1",
-        "projectPath": "C:\\Users\\suken\\Desktop\\ConsoleApp1\\ConsoleApp1\\ConsoleApp1.csproj",
-        "packagesPath": "C:\\Users\\suken\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\suken\\Desktop\\ConsoleApp1\\ConsoleApp1\\obj\\",
+        "projectPath": "D:\\_Capella\\_ECA\\Test\\test\\ConsoleApp1\\ConsoleApp1.csproj",
+        "packagesPath": "C:\\Users\\Sukaineh\\.nuget\\packages\\",
+        "outputPath": "D:\\_Capella\\_ECA\\Test\\test\\ConsoleApp1\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
         "configFilePaths": [
-          "C:\\Users\\suken\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Sukaineh\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -73,7 +76,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.400\\RuntimeIdentifierGraph.json"
         }
       }
     }

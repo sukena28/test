@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ConsoleApp1.Models;
 using Newtonsoft.Json.Linq;
+using System.Reflection;
 
 namespace ConsoleApp1
 {
@@ -18,19 +19,21 @@ namespace ConsoleApp1
         {
             public ChainDTO Convert(JObject jsonChain, ChainDTO destination, ResolutionContext context)
             {
-                var linksDtoKey = $"{nameof(ChainDTO.DTOLinks)}";
+                var componentListKey = GetPropertyNames(typeof(ChainDTO), typeof(List<IComponentDTO>));
 
-                var linksJson = jsonChain[linksDtoKey];
+                var componentListJson = jsonChain[componentListKey];
 
-                jsonChain[linksDtoKey]?.Parent?.Remove();
+                jsonChain[componentListKey]?.Parent?.Remove();
 
                 var chainDto = jsonChain?.ToObject<ChainDTO>() ?? new ChainDTO();
 
-                chainDto.DTOLinks = GetLinkedList(linksJson, destination, context);
+                var componentList = GetComponentList(componentListJson, destination, context);
+
+                SetPropertyByName(chainDto, componentListKey, componentList);
 
                 return chainDto;
             }
-            private static List<IComponentDTO> GetLinkedList(JToken? linksDto, ChainDTO destination, ResolutionContext context)
+            private  List<IComponentDTO> GetComponentList(JToken? linksDto, ChainDTO destination, ResolutionContext context)
             {
 
                 if (linksDto == null)
@@ -42,7 +45,7 @@ namespace ConsoleApp1
                                 .Select(t => (IComponentDTO)Activator.CreateInstance(t)).ToList();
 
 
-                if(componenteTypeClass?.Count == 0)
+                if (componenteTypeClass?.Count == 0)
                     throw new NotSupportedException($"Component Type is empty");
 
 
@@ -54,7 +57,7 @@ namespace ConsoleApp1
 
                     if (classType == null) { throw new NotSupportedException($"Component Type is empty"); }
 
-                   var component =  (IComponentDTO)context.Mapper.Map(item?.ToObject<JObject>(), typeof(JObject), classType);
+                    var component = (IComponentDTO)context.Mapper.Map(item?.ToObject<JObject>(), typeof(JObject), classType);
 
                     return component;
 
@@ -62,6 +65,19 @@ namespace ConsoleApp1
 
                 return componentList;
 
+            }
+            private string GetPropertyNames(Type objectType, Type propType)
+            {
+                return objectType.GetProperties()
+                                  .FirstOrDefault(property => property.PropertyType
+                                  .Equals(propType))?.Name ?? "";
+            }
+            public void SetPropertyByName(Object obj, string name, Object value)
+            {
+                var property = obj.GetType().GetProperty(name, BindingFlags.Public | BindingFlags.Instance);
+
+                if (property != null && property.CanWrite) 
+                    property.SetValue(obj, value, null);
             }
         }
     }

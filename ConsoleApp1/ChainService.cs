@@ -20,6 +20,7 @@ namespace ConsoleApp1
             var jsonData = GetJsonData();
 
             var result =  _mapper.Map<ChainDTO>(jsonData);
+
             return result;
         }
 
