@@ -10,34 +10,53 @@ namespace ConsoleApp1
         public ChainProfile()
         {
             CreateMap<JObject, ChainDTO>()
-                        .ConvertUsing<JObjectChainConverter>();
+                        .ConvertUsing<JObjectChainDTOConverter>();
 
 
+            CreateMap<JObject, GroupDTO>()
+              .ConvertUsing<JObjectGroupConverter>();
 
         }
-        public class JObjectChainConverter : ITypeConverter<JObject, ChainDTO>
+        public class JObjectGroupConverter : ITypeConverter<JObject, GroupDTO>
         {
-            public ChainDTO Convert(JObject jsonChain, ChainDTO destination, ResolutionContext context)
+            public GroupDTO Convert(JObject json, GroupDTO destination, ResolutionContext context)
             {
-                var componentListKey = GetPropertyNames(typeof(ChainDTO), typeof(List<IComponentDTO>));
+                return LinkedComponentTypeConverter.Convert(json, destination, context);
+            }
+        }
+        public class JObjectChainDTOConverter : ITypeConverter<JObject, ChainDTO>
+        {
+            public ChainDTO Convert(JObject json, ChainDTO destination, ResolutionContext context)
+            {
+                return LinkedComponentTypeConverter.Convert(json, destination, context);
+            }
+        }
+        public static class LinkedComponentTypeConverter
+        {
+            public static DestinationType Convert<DestinationType>(JObject jsonChain, DestinationType destination, ResolutionContext context)
+            {
+                var componentListPropertyName  = GetPropertyName(typeof(DestinationType), typeof(List<IComponentDTO>));
 
-                var componentListJson = jsonChain[componentListKey];
+                var componentListJson = jsonChain[componentListPropertyName];
 
-                jsonChain[componentListKey]?.Parent?.Remove();
+                jsonChain[componentListPropertyName]?.Parent?.Remove();
 
-                var chainDto = jsonChain?.ToObject<ChainDTO>() ?? new ChainDTO();
+                var component = jsonChain.ToObject<DestinationType>();
 
                 var componentList = GetComponentList(componentListJson, destination, context);
 
-                SetPropertyByName(chainDto, componentListKey, componentList);
+                SetPropertyByName(component, componentListPropertyName, componentList);
 
-                return chainDto;
+                return component;
             }
-            private  List<IComponentDTO> GetComponentList(JToken? linksDto, ChainDTO destination, ResolutionContext context)
+            private static List<IComponentDTO> GetComponentList<DestinationType>(JToken? linksDto, DestinationType destination, ResolutionContext context)
             {
 
                 if (linksDto == null)
                     return new List<IComponentDTO>();
+
+                var componentTypePropertyName = GetPropertyName(typeof(DestinationType), typeof(List<ComponentType>));
+
 
                 var componenteTypeClass = typeof(IComponentDTO)
                                 .Assembly.GetTypes()
@@ -51,9 +70,10 @@ namespace ConsoleApp1
 
                 var componentList = linksDto.Select(item =>
                 {
-                    var componentType = item[$"{nameof(IComponentDTO.ComponentType)}"]?.ToObject<ComponentType>();
 
-                    Type classType = componenteTypeClass!.FirstOrDefault(x => x!.ComponentType == componentType).GetType();
+                    var componentType = item[$"{componentTypePropertyName}"]?.ToObject<ComponentType>();
+
+                    Type classType = componenteTypeClass.FirstOrDefault(x => x.ComponentType == componentType).GetType();
 
                     if (classType == null) { throw new NotSupportedException($"Component Type is empty"); }
 
@@ -66,19 +86,20 @@ namespace ConsoleApp1
                 return componentList;
 
             }
-            private string GetPropertyNames(Type objectType, Type propType)
+            private static string GetPropertyName(Type objectType, Type propType)
             {
                 return objectType.GetProperties()
                                   .FirstOrDefault(property => property.PropertyType
                                   .Equals(propType))?.Name ?? "";
             }
-            public void SetPropertyByName(Object obj, string name, Object value)
+            public static void SetPropertyByName(Object obj, string name, Object value)
             {
                 var property = obj.GetType().GetProperty(name, BindingFlags.Public | BindingFlags.Instance);
 
-                if (property != null && property.CanWrite) 
+                if (property != null && property.CanWrite)
                     property.SetValue(obj, value, null);
             }
+
         }
     }
 }
